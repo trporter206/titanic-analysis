@@ -22,25 +22,16 @@ def overview(data):
 
 # overview(titanic_data)
 
-#compare class to survival rate. groupby is like pivot in excel-----------------
-class_survival = titanic_data[['Pclass', 'Survived']].groupby(['Pclass'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+#compare plcass, sex, sibsp, parch to survival rate-----------------------------
+def pivot(v1, v2):
+    pivot_table = titanic_data[[v1, v2]].groupby([v1], as_index=False).mean().sort_values(by=v2, ascending=False)
+    print('_'*40)
+    print pivot_table
 
-# print class_survival
-
-#compare sex and survival rate--------------------------------------------------
-sex_survival = titanic_data[['Sex', 'Survived']].groupby(['Sex'], as_index=False).mean().sort_values(by='Survived', ascending=False)
-
-# print sex_survival
-
-#compare number of siblings to survival rate------------------------------------
-sibling_count_survival = titanic_data[['SibSp', 'Survived']].groupby(['SibSp'], as_index=False).mean().sort_values(by='Survived', ascending=False)
-
-# print sibling_count_survival
-
-#compare number of accompanying parents/children with survival------------------
-with_parent_or_child_survival = titanic_data[['Parch', 'Survived']].groupby(['Parch'], as_index=False).mean().sort_values(by='Survived', ascending=False)
-
-# print with_parent_or_child_survival
+pivot('Pclass', 'Survived')
+pivot('Sex','Survived')
+pivot('SibSp','Survived')
+pivot('Parch','Survived')
 
 #visual analysis of age and class survival--------------------------------------
 g = sns.FacetGrid(titanic_data, col='Survived')
@@ -49,4 +40,4 @@ g.map(plt.hist, 'Age', bins=20)
 grid = sns.FacetGrid(titanic_data, col='Survived', row='Pclass')
 grid.map(plt.hist, 'Age', alpha=.5, bins=20)
 grid.add_legend
-plt.show()
+# plt.show()
