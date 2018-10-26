@@ -2,7 +2,7 @@ import csv
 import pandas as pd
 import numpy as np
 import seaborn as sns
-import matplotlib.pyplot as pyplot
+import matplotlib.pyplot as plt
 
 titanic_data = pd.read_csv("titanic_data.csv")
 
@@ -41,3 +41,12 @@ sibling_count_survival = titanic_data[['SibSp', 'Survived']].groupby(['SibSp'], 
 with_parent_or_child_survival = titanic_data[['Parch', 'Survived']].groupby(['Parch'], as_index=False).mean().sort_values(by='Survived', ascending=False)
 
 # print with_parent_or_child_survival
+
+#visual analysis of age and class survival--------------------------------------
+g = sns.FacetGrid(titanic_data, col='Survived')
+g.map(plt.hist, 'Age', bins=20)
+
+grid = sns.FacetGrid(titanic_data, col='Survived', row='Pclass')
+grid.map(plt.hist, 'Age', alpha=.5, bins=20)
+grid.add_legend
+plt.show()
