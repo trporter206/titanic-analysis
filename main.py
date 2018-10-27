@@ -49,4 +49,31 @@ bar = sns.FacetGrid(titanic_data, row='Embarked', col='Survived')
 bar.map(sns.barplot, 'Sex', 'Fare', alpha=.5, ci=None)
 bar.add_legend()
 
-plt.show()
+# plt.show()
+
+#start dropping unnecessary features for determining survival-------------------
+titanic_data = titanic_data.drop(['Ticket', 'Cabin'], axis=1)
+
+#create new feature for title of passenger--------------------------------------
+data = [titanic_data]
+for dataset in data:
+    dataset['Title'] = dataset.Name.str.extract(' ([A-Za-z]+)\.', expand=False)
+
+title_table = pd.crosstab(titanic_data['Title'], titanic_data['Sex'])
+# print title_table
+
+for dataset in data:
+    dataset['Title'] = dataset['Title'].replace(['Lady', 'Countess', 'Capt', 'Col', 'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare')
+
+    dataset['Title'] = dataset['Title'].replace('Mlle', 'Miss')
+    dataset['Title'] = dataset['Title'].replace('Ms', 'Miss')
+    dataset['Title'] = dataset['Title'].replace('Mme', 'Mrs')
+
+# print titanic_data[['Title', 'Survived']].groupby(['Title'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+
+title_mapping = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Rare": 5}
+for dataset in data:
+    dataset['Title'] = dataset['Title'].map(title_mapping)
+    dataset['Title'] = dataset['Title'].fillna(0)
+
+print titanic_data.head()
