@@ -55,7 +55,6 @@ bar.add_legend()
 titanic_data = titanic_data.drop(['Ticket', 'Cabin'], axis=1)
 
 #create new feature for title of passenger--------------------------------------
-[titanic_data]
 for dataset in [titanic_data]:
     dataset['Title'] = dataset.Name.str.extract(' ([A-Za-z]+)\.', expand=False)
 
@@ -82,9 +81,29 @@ titanic_data = titanic_data.drop(['Name', 'PassengerId'], axis=1)
 for dataset in [titanic_data]:
     dataset['Sex'] = dataset['Sex'].map({'female': 1, 'male': 0}).astype(int)
 
-#fill in missing/null values. Guess Age values using median values for Age across sets of Pclass and Gender feature combinations------------------------------------------
+#fill in missing/null values. Guess Age values using median values for Age across sets of Pclass and Gender feature combinations--------------------------------------------------------------------
 hist = sns.FacetGrid(titanic_data, row='Pclass', col='Sex')
 hist.map(plt.hist, 'Age', alpha=.5, bins=20)
 hist.add_legend()
 
-plt.show()
+# plt.show()
+
+guess_ages = np.zeros((2,3))
+
+for dataset in [titanic_data]:
+    for i in range(0,2):
+        for j in range(0,3):
+            guess_df = dataset[(dataset['Sex'] == i) & (dataset['Pclass'] == j+1)]['Age'].dropna()
+
+            age_guess = guess_df.median()
+
+            #convert random age float to nearest .5 age
+            guess_ages[i,j] = int(age_guess/0.5 + 0.5) * 0.5
+
+    for i in range(0,2):
+        for j in range(0,3):
+            dataset.loc[ (dataset.Age.isnull()) & (dataset.Sex == i) & (dataset.Pclass == j+1), 'Age'] = guess_ages[i,j]
+
+    dataset['Age'] = dataset['Age'].astype(int)
+
+print titanic_data['Age']
