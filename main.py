@@ -55,14 +55,14 @@ bar.add_legend()
 titanic_data = titanic_data.drop(['Ticket', 'Cabin'], axis=1)
 
 #create new feature for title of passenger--------------------------------------
-data = [titanic_data]
-for dataset in data:
+[titanic_data]
+for dataset in [titanic_data]:
     dataset['Title'] = dataset.Name.str.extract(' ([A-Za-z]+)\.', expand=False)
 
 title_table = pd.crosstab(titanic_data['Title'], titanic_data['Sex'])
 # print title_table
 
-for dataset in data:
+for dataset in [titanic_data]:
     dataset['Title'] = dataset['Title'].replace(['Lady', 'Countess', 'Capt', 'Col', 'Don', 'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer', 'Dona'], 'Rare')
 
     dataset['Title'] = dataset['Title'].replace('Mlle', 'Miss')
@@ -72,8 +72,19 @@ for dataset in data:
 # print titanic_data[['Title', 'Survived']].groupby(['Title'], as_index=False).mean().sort_values(by='Survived', ascending=False)
 
 title_mapping = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Rare": 5}
-for dataset in data:
+for dataset in [titanic_data]:
     dataset['Title'] = dataset['Title'].map(title_mapping)
     dataset['Title'] = dataset['Title'].fillna(0)
 
-print titanic_data.head()
+titanic_data = titanic_data.drop(['Name', 'PassengerId'], axis=1)
+
+#convert categorical features to numeric for algo ease--------------------------
+for dataset in [titanic_data]:
+    dataset['Sex'] = dataset['Sex'].map({'female': 1, 'male': 0}).astype(int)
+
+#fill in missing/null values. Guess Age values using median values for Age across sets of Pclass and Gender feature combinations------------------------------------------
+hist = sns.FacetGrid(titanic_data, row='Pclass', col='Sex')
+hist.map(plt.hist, 'Age', alpha=.5, bins=20)
+hist.add_legend()
+
+plt.show()
