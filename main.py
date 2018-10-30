@@ -106,7 +106,7 @@ for dataset in [titanic_data]:
 
     dataset['Age'] = dataset['Age'].astype(int)
 
-#create 5 age bands for ease-----------------------------------------------------
+#create 5 age bands for ease----------------------------------------------------
 titanic_data['AgeBand'] = pd.cut(titanic_data['Age'], 5)
 ageband_survival = titanic_data[['AgeBand', 'Survived']].groupby(['AgeBand'], as_index=False).mean().sort_values(by='AgeBand', ascending=True)
 
@@ -119,4 +119,25 @@ for dataset in [titanic_data]:
 
 titanic_data = titanic_data.drop(['AgeBand'], axis=1)
 
-print titanic_data.head()
+#create familysize combining parch and sibs-------------------------------------
+for dataset in [titanic_data]:
+    dataset['FamilySize'] = dataset['SibSp'] + dataset['Parch'] + 1
+
+family_survival = titanic_data[['FamilySize', 'Survived']].groupby(['FamilySize'], as_index=False).mean().sort_values(by='Survived', ascending=False)
+# print family_survival
+
+for dataset in [titanic_data]:
+    dataset['IsAlone'] = 0
+    dataset.loc[dataset['FamilySize'] == 1, 'IsAlone'] = 1
+
+alone_survival = titanic_data[['IsAlone', 'Survived']].groupby(['IsAlone'], as_index=False).mean()
+# print alone_survival
+
+titanic_data = titanic_data.drop(['Parch', 'SibSp', 'FamilySize'], axis=1)
+# print titanic_data.head()
+
+#combine pclass and age---------------------------------------------------------
+for dataset in [titanic_data]:
+    dataset['Age*Class'] = dataset.Age * dataset.Pclass
+
+print titanic_data.loc[:, ['Age*Class', 'Age', 'Pclass']].head(10)
