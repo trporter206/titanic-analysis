@@ -106,4 +106,17 @@ for dataset in [titanic_data]:
 
     dataset['Age'] = dataset['Age'].astype(int)
 
-print titanic_data['Age']
+#create 5 age bands for ease-----------------------------------------------------
+titanic_data['AgeBand'] = pd.cut(titanic_data['Age'], 5)
+ageband_survival = titanic_data[['AgeBand', 'Survived']].groupby(['AgeBand'], as_index=False).mean().sort_values(by='AgeBand', ascending=True)
+
+for dataset in [titanic_data]:
+    dataset.loc[dataset['Age'] <= 16, 'Age'] = 0
+    dataset.loc[(dataset['Age'] > 16) & (dataset['Age'] <= 32), 'Age'] = 1
+    dataset.loc[(dataset['Age'] > 32) & (dataset['Age'] <= 48), 'Age'] = 2
+    dataset.loc[(dataset['Age'] > 48) & (dataset['Age'] <= 64), 'Age'] = 3
+    dataset.loc[dataset['Age'] > 64, 'Age']
+
+titanic_data = titanic_data.drop(['AgeBand'], axis=1)
+
+print titanic_data.head()
