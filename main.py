@@ -48,7 +48,6 @@ plot.add_legend()
 bar = sns.FacetGrid(titanic_data, row='Embarked', col='Survived')
 bar.map(sns.barplot, 'Sex', 'Fare', alpha=.5, ci=None)
 bar.add_legend()
-
 # plt.show()
 
 #start dropping unnecessary features for determining survival-------------------
@@ -67,7 +66,6 @@ for dataset in [titanic_data]:
     dataset['Title'] = dataset['Title'].replace('Mlle', 'Miss')
     dataset['Title'] = dataset['Title'].replace('Ms', 'Miss')
     dataset['Title'] = dataset['Title'].replace('Mme', 'Mrs')
-
 # print titanic_data[['Title', 'Survived']].groupby(['Title'], as_index=False).mean().sort_values(by='Survived', ascending=False)
 
 title_mapping = {"Mr": 1, "Miss": 2, "Mrs": 3, "Master": 4, "Rare": 5}
@@ -85,7 +83,6 @@ for dataset in [titanic_data]:
 hist = sns.FacetGrid(titanic_data, row='Pclass', col='Sex')
 hist.map(plt.hist, 'Age', alpha=.5, bins=20)
 hist.add_legend()
-
 # plt.show()
 
 guess_ages = np.zeros((2,3))
@@ -139,7 +136,6 @@ titanic_data = titanic_data.drop(['Parch', 'SibSp', 'FamilySize'], axis=1)
 #combine pclass and age---------------------------------------------------------
 for dataset in [titanic_data]:
     dataset['Age*Class'] = dataset.Age * dataset.Pclass
-
 # print titanic_data.loc[:, ['Age*Class', 'Age', 'Pclass']].head(10)
 
 #fill missing class values------------------------------------------------------
@@ -153,5 +149,23 @@ embarked_survival = dataset[['Embarked', 'Survived']].groupby(['Embarked'], as_i
 
 for dataset in [titanic_data]:
     dataset['Embarked'] = dataset['Embarked'].map({'S': 0, 'C': 1, 'Q': 2}).astype(int)
+# print titanic_data.head()
 
-print titanic_data.head()
+#fill single missing fare value-------------------------------------------------
+titanic_data['Fare'].fillna(titanic_data['Fare'].dropna().median(), inplace=True)
+
+#create fareband and set fare to ordinal values based on band-------------------
+titanic_data['FareBand'] = pd.qcut(titanic_data['Fare'], 4)
+fare_survival = titanic_data[['FareBand', 'Survived']].groupby(['FareBand'], as_index=False).mean().sort_values(by='FareBand', ascending=True)
+# print fare_survival
+
+for dataset in [titanic_data]:
+    dataset.loc[dataset['Fare'] <= 7.91, 'Fare'] = 0
+    dataset.loc[(dataset['Fare'] > 7.91) & (dataset['Fare'] <= 14.454), 'Fare'] = 1
+    dataset.loc[(dataset['Fare'] > 14.454) & (dataset['Fare'] <= 31), 'Fare'] = 2
+    dataset.loc[dataset['Fare'] > 31, 'Fare'] = 3
+    dataset['Fare'] = dataset['Fare'].astype(int)
+
+titanic_data = titanic_data.drop(['FareBand'], axis=1)
+
+print titanic_data.head(10)
