@@ -140,4 +140,18 @@ titanic_data = titanic_data.drop(['Parch', 'SibSp', 'FamilySize'], axis=1)
 for dataset in [titanic_data]:
     dataset['Age*Class'] = dataset.Age * dataset.Pclass
 
-print titanic_data.loc[:, ['Age*Class', 'Age', 'Pclass']].head(10)
+# print titanic_data.loc[:, ['Age*Class', 'Age', 'Pclass']].head(10)
+
+#fill missing class values------------------------------------------------------
+freq_port = titanic_data.Embarked.dropna().mode()[0]
+
+for dataset in [titanic_data]:
+    dataset['Embarked'] = dataset['Embarked'].fillna(freq_port)
+
+embarked_survival = dataset[['Embarked', 'Survived']].groupby(['Embarked'], as_index=False).mean()
+# print embarked_survival
+
+for dataset in [titanic_data]:
+    dataset['Embarked'] = dataset['Embarked'].map({'S': 0, 'C': 1, 'Q': 2}).astype(int)
+
+print titanic_data.head()
